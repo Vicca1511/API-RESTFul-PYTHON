@@ -1,29 +1,51 @@
-name: Python CI
+name: Python CI Pipeline
 
 on:
   pull_request:
     branches: [ main ]
+  push:
+    branches: [ main ]
 
 jobs:
-  quality-check:
+  code-quality:
     runs-on: ubuntu-latest
+    name: Code Quality Check
     
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Setup Python 3.11
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python 3.11
       uses: actions/setup-python@v4
       with:
         python-version: "3.11"
-        
-    - name: Install dependencies
+        cache: 'pip'
+
+    - name: Install Python dependencies
       run: |
-        pip install -r requirements.txt
-        
-    - name: Check code quality with Pylint
+        pip install fastapi uvicorn python-dotenv
+        pip install pylint
+
+    - name: List installed packages
       run: |
-        pylint app/ --exit-zero
-        
-    - name: Verify all modules can be imported
+        pip list
+
+    - name: Run Pylint with module approach
       run: |
-        python -c "import app.main, app.schemas, app.crud, app.database; print('✅ All imports successful!')"
+        python -m pylint app/ --exit-zero --output-format=colorized
+
+    - name: Basic functionality test
+      run: |
+        echo "Testing Python imports..."
+        python -c "
+        try:
+            from app.main import app
+            from app.schemas import Livro
+            from app.crud import crud_livros
+            from app.database import livros_db
+            print('✅ All imports successful!')
+            print(f'📚 Found {len(livros_db)} books in database')
+        except Exception as e:
+            print(f'❌ Import error: {e}')
+            exit(1)
+        "
