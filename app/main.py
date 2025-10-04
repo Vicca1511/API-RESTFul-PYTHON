@@ -43,10 +43,40 @@ async def buscar_livro(livro_id:int):
      if not livro:
           raise HTTPException(
                status_code= status.HTTP_404_NOT_FOUND,
-               detail= "Livro não encontrado"
+               detail= "Livro não encontrado."
           )
      return livro
 
+@app.post("/livros", response_model= Livro , status_code= status.HTTP_201_CREATED)
+async def criar_livro(livro:LivroCreate):
+     """Cria um novo livro"""
+     return crud_livros.criar_livro(livro)
+
+@app.put("/livros/{livro_id}", response_model= Livro)
+async def atualizar_livro(livro_id:int , livro_update: LivroUpdate):
+     """Atualiza um livro existente"""
+     livro_atualizado = crud_livros.atualizar_livro(livro_id, livro_update= livro_update)
+     if not livro_atualizado:
+          raise HTTPException(
+               status_code=status.HTTP_404_NOT_FOUND, 
+               detail= "Livro não encontrado.")
+     return livro_atualizado
+
+@app.delete("livros/{id_livro}")
+async def deletar_livro(livro_id = int):
+     """Remove um livro do sistema"""
+     if not crud_livros.deletar_livro(livro_id):
+          raise HTTPException(
+               status_code=status.HTTP_404_NOT_FOUND,
+               detail= "Livro não encontrado.")
+     
+     return {"message":"Livro excluido com sucesso!"}
+
+@app.get("/livros/disponiveis", response_model=List[Livro])
+async def listar_livros_disponiveis():
+     livros_disponiveis = crud_livros.listar_livros()
+     livros = crud_livros.listar_livros()
+     return [livro for livro in livros if livro.disponivel]    
 
      
     
