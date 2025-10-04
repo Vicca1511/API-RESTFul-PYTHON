@@ -26,7 +26,7 @@ class CRUDLivros:
         livros_db[novo_id] = novo_livro.model_dump()
         return novo_livro
     
-    staticmethod
+    @staticmethod
     def atualizar_livro(livro_id: int, livro_update: LivroUpdate) -> Optional[Livro]:
         """Atualiza um Livro existente!"""
         livro_existente = livros_db[livro_id]
