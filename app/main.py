@@ -4,7 +4,7 @@ from app.crud import crud_livros
 from typing import List
 
 app = FastAPI(
-    title= "Sistea Biclioteca API",
+    title= "Sistema Biclioteca API",
     description= " API para gerenciamento de biblioteca",
     version="1.0.0"
 )
@@ -30,6 +30,12 @@ async def info():
 
 
 # --- ENDPOINTS CRUD PARA LIVROS ---
+
+@app.get("/livros/disponiveis", response_model=List[Livro])
+async def listar_livros_disponiveis():
+    """Lista apenas livros disponíveis"""
+    livros = crud_livros.listar_livros()
+    return [livro for livro in livros if livro.disponivel]    
 
 @app.get("/livros", response_model= List[Livro])
 async def listar_livros():
@@ -72,11 +78,7 @@ async def deletar_livro(livro_id = int):
      
      return {"message":"Livro excluido com sucesso!"}
 
-@app.get("/livros/disponiveis", response_model=List[Livro])
-async def listar_livros_disponiveis():
-     livros_disponiveis = crud_livros.listar_livros()
-     livros = crud_livros.listar_livros()
-     return [livro for livro in livros if livro.disponivel]    
+
 
      
     
