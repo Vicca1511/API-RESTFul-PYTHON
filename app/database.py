@@ -1,8 +1,7 @@
-from typing import Dict
+from sqlalchemy.orm import Session
+from app.models import LivroDB
+import logging
 
-# Banco de dados em memória para livros
-livros_db: Dict[int, dict] = {}
-contador_id = 1
 
 # Dados iniciais para teste
 dados_iniciais = [
@@ -21,24 +20,32 @@ dados_iniciais = [
         "ano_publicacao": 1954,
         "isbn": "978-8533613379",
         "disponivel": True
+    },
+    {
+        "titulo": "1984",
+        "autor": "George Orwell",
+        "categoria": "Ficção Científica",
+        "ano_publicacao": 1949,
+        "isbn": "978-0451524935",
+        "disponivel": False
     }
+
 ]
 
 # Popular banco com dados iniciais
-for livro_data in dados_iniciais:
-    livros_db[contador_id] = {"id": contador_id, **livro_data}
-    contador_id += 1
 
-def get_proximo_id() -> int:
-    global contador_id
-    id_atual = contador_id
-    contador_id += 1
-    return id_atual
+def popular_banco_inicial(db: Session):
+    """Popula o banco com dados iniciais se estiver vazio"""
+    quantidade_livros = db.query(LivroDB).count()
 
-def get_livros_count() -> int:
-    """Retorna o número total de livros"""
-    return len(livros_db)
+    if quantidade_livros == 0 :
+        print("🎯 Populando banco com dados iniciais...")
 
-def get_livros_disponiveis() -> list:
-    """Retorna lista de livros disponíveis"""
-    return [livro for livro in livros_db.values() if livro.get('disponivel', True)]
+        for livro_data in dados_iniciais:
+            livro = LivroDB(**livro_data)
+            db.add(livro)
+
+        db.commit()
+        print(f"✅ {len(dados_iniciais)} livros adicionados ao banco!")
+    else:
+        print(f"📚 Banco já contém {quantidade_livros} livros. Pulando população inicial.")          
