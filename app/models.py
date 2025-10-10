@@ -26,7 +26,7 @@ class LivroDB(Base):
 
 
 def criar_tabelas():
-    Base.metadata.create_all(bind= engine) # perguntar mas sobre 
+    Base.metadata.create_all(bind= engine) # perguntar mais sobre 
     print("Tabelas criadas/Validadas!")
    
 def get_db():

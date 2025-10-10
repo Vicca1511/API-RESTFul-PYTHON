@@ -1,42 +1,35 @@
-name: Python CI Pipeline
-
-on:
-  pull_request:
-    branches: [ main ]
-  push:
-    branches: [ main ]
+name: Test API
+on: [push, pull_request]
 
 jobs:
-  code-quality:
+  test:
     runs-on: ubuntu-latest
-    name: Code Quality Check
     
     steps:
-    - name: Checkout repository
+    - name: Checkout code
       uses: actions/checkout@v4
-
-    - name: Set up Python 3.11
+      
+    - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: "3.11"
-
-    - name: Install Python dependencies
-      run: |
-        pip install fastapi uvicorn python-dotenv pylint
-
-    - name: Run Pylint
-      run: |
-        python -m pylint app/ --exit-zero
-
-    - name: Test Basic Imports
-      run: |
-        echo "Testing essential imports..."
-        python -c "from app.main import app; print('✅ FastAPI app imported successfully')"
+        python-version: '3.11'
         
-    - name: Test Optional Imports
-      continue-on-error: true
+    - name: Install dependencies
       run: |
-        echo "Testing optional imports..."
-        python -c "from app.schemas import Livro; print('✅ Schemas imported successfully')" || echo "⚠️ Schemas not available yet"
-        python -c "from app.crud import crud_livros; print('✅ CRUD imported successfully')" || echo "⚠️ CRUD not available yet"
-        python -c "from app.database import livros_db; print('✅ Database imported successfully')" || echo "⚠️ Database not available yet"
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: Test imports
+      run: |
+        python -c "from app.main import app; print('✅ FastAPI app imported successfully')"
+        python -c "from app.models import criar_tabelas; print('✅ Models imported successfully')"
+        python -c "from app.crud import crud_livros; print('✅ CRUD imported successfully')"
+        
+    - name: Run basic tests
+      run: |
+        python -c "
+        # Teste de criação de tabelas (sem banco real)
+        from app.models import criar_tabelas
+        criar_tabelas()
+        print('✅ Table creation test passed')
+        "
