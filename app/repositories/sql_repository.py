@@ -31,7 +31,7 @@ class SQLLivroRepository(LivroRepository):
         return Livro.model_validate(livro_db) if livro_db else None
     
     def criar(self, livro: LivroCreate) -> Livro:
-        livro_db = LivroDB(livro.model_dump())
+        livro_db = LivroDB(**livro.model_dump())
 
         self.db.add(livro_db)
         self.db.commit()
