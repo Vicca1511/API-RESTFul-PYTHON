@@ -80,3 +80,40 @@ class CRUDLivros:
             bool: True se foi removido, False se não encontrado
         """
         return self.repository.deletar(livro_id)
+    
+
+    # === COMPATIBILIDADE COM MAIN.PY ATUAL ===
+from app.repositories.sql_repository import SQLLivroRepository
+
+class CRUDLivrosWrapper:
+    """
+    WRAPPER TEMPORÁRIO - Compatibilidade com main.py atual
+    Permite migração gradual para nova arquitetura
+    """
+    def __init__(self):
+        self._crud_cache = {}
+    
+    def _get_crud_for_db(self, db):
+        session_id = id(db)
+        if session_id not in self._crud_cache:
+            repo = SQLLivroRepository(db)
+            self._crud_cache[session_id] = CRUDLivros(repo)
+        return self._crud_cache[session_id]
+    
+    def listar_livros(self, db):
+        return self._get_crud_for_db(db).listar_livros()
+    
+    def buscar_livro(self, db, livro_id):
+        return self._get_crud_for_db(db).buscar_livro(livro_id)
+    
+    def criar_livro(self, db, livro):
+        return self._get_crud_for_db(db).criar_livro(livro)
+    
+    def atualizar_livro(self, db, livro_id, livro_update):
+        return self._get_crud_for_db(db).atualizar_livro(livro_id, livro_update)
+    
+    def deletar_livro(self, db, livro_id):
+        return self._get_crud_for_db(db).deletar_livro(livro_id)
+
+# Instância compatível
+crud_livros = CRUDLivrosWrapper()
